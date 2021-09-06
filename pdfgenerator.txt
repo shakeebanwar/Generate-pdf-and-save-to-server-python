@@ -1,0 +1,337 @@
+How i create pdf and save to server:
+
+frontend code:
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    window.onload = function () {
+        
+                const invoice = this.document.getElementById("invoice");
+                //console.log(invoice);
+                //console.log(window);
+                var opt = {
+                    margin: 0,
+                    filename: 'Invoice.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' }
+                };
+                //let file = html2pdf().from(invoice).set(opt).save()
+                html2pdf().from(invoice).toPdf().output('datauristring').then(function (pdfAsString) {
+                    // The PDF has been converted to a Data URI string and passed to this function.
+                    // Use pdfAsString however you like (send as email, etc)! For instance:
+                    console.log(pdfAsString);
+                    result = dataURItoBlob(pdfAsString)
+                    console.log(result)
+                    
+
+
+                
+                    var formData = new FormData();
+                    formData.append('file', result);
+                    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                    $.ajax({
+                        url: "/frontpdf",
+                        type: 'post',
+                        data: formData,
+                        cache: false,
+                        processData: false,
+                        contentType: false,
+                        success: function(data){
+                        console.log("data is ",data)
+                        }
+                    });
+
+                
+
+
+               
+                  
+                });
+
+          
+
+                
+
+
+
+             
+
+
+
+            
+    }
+
+
+
+
+    function dataURItoBlob(dataURI) {
+        // convert base64/URLEncoded data component to raw binary data held in a string
+        var byteString;
+        if (dataURI.split(',')[0].indexOf('base64') >= 0)
+            byteString = atob(dataURI.split(',')[1]);
+        else
+            byteString = unescape(dataURI.split(',')[1]);
+    
+        // separate out the mime component
+        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    
+        // write the bytes of the string to a typed array
+        var ia = new Uint8Array(byteString.length);
+        for (var i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+    
+        return new Blob([ia], {type:mimeString});
+    }
+   </script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+<style type="text/css">
+    *{
+        margin: 0;
+        padding:0;
+    }
+      body {
+            margin: 0;
+            font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            font-size: .8125rem;
+            font-weight: 400;
+            line-height: 1.5385;
+            color: #333;
+            text-align: left;
+            background-color: #eee
+        }
+        
+        .mt-50 {
+            margin-top: 50px
+        }
+        
+        .mb-50 {
+            margin-bottom: 50px
+        }
+        
+        .card {
+            position: relative;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-direction: column;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 1px solid rgba(0, 0, 0, .125);
+            border-radius: .1875rem
+        }
+        
+        .card-img-actions {
+            position: relative
+        }
+        
+        .card-body {
+            -ms-flex: 1 1 auto;
+            flex: 1 1 auto;
+            padding: 1.25rem;
+            text-align: center
+        }
+        
+        .card-title {
+            margin-top: 10px;
+            font-size: 17px
+        }
+        
+        .invoice-color {
+            color: red !important
+        }
+        
+        .card-header {
+            padding: .9375rem 1.25rem;
+            margin-bottom: 0;
+            background-color: rgba(0, 0, 0, .02);
+            border-bottom: 1px solid rgba(0, 0, 0, .125)
+        }
+        
+        a {
+            text-decoration: none !important
+        }
+        
+    .border-wrap{
+        border: 1px solid #008DA2;
+        color: #fff;
+        background:#008DA2;
+    }
+    .bl{
+        border-left: 1px solid #008DA2;
+    }
+    .br{
+        border-right: 1px solid #008DA2;
+    }
+    .bt{
+        border-top: 1px solid #008DA2;
+    }
+    .bb{
+        border-bottom: 1px solid #008DA2;
+    }
+    .height{
+        height: auto;
+    }
+    .h10{
+        height: 1062px;
+    }
+    .text{
+        text-transform: capitalize;
+        font-size: 12px;
+    }
+    .text-label{
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: 12px;
+    }
+    .section{
+        width: 80%;
+        margin-left: 10%;
+    }
+    .mt{
+        margin-top: 5px;
+    }
+    h3{
+        text-decoration: underline;
+    }
+    .top-right-img{
+        background-repeat: no-repeat;
+        margin-left: 30%;
+        width: -50%;
+    }
+</style>
+  <div  id="invoice" >
+<page> 
+    <!-- Start Top Section -->
+    <div class="section">
+        <table class="row" cellpadding="12" cellspacing="0">
+            <tr>
+                <td valign="top" style="width: 25%;padding: 5px;">
+                    <img src="data:image/png;base64,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" width="100" height="100">
+                </td>
+                <td valign="bottom" style="width: 25%;padding: 5px;"><h2>Agha khan</h2></td>
+                <td valign="top" style="width: 25%;padding: 5px;"></td>
+                <td valign="top" style="width: 25%;padding: 5px;"></td>
+            </tr>
+            <tr>
+                <td valign="top" style="width: 25%;padding: 5px;">
+                    <h4>Invoice # <span>0900</span></h4></td>
+                <td valign="top" style="width: 25%;padding: 5px;"></td>
+                <td valign="top" style="width: 25%;padding: 5px;"></td>
+                <td valign="top" style="width: 25%;padding: 5px;"></td>
+            </tr>
+        </table> 
+    </div>
+    <hr style="height: 10px;background-color: #008DA2;">
+    
+    <div class="section">
+        <div class="mt"></div>
+        <table class="row" cellpadding="12" cellspacing="0">
+            <tr>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Invoice Date</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">9/4/2021</td>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Invoice #</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">0900</td>
+            </tr>
+            <tr>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Status</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">Paid</td>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Bill TO</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">shakeeb</td>
+            </tr>
+            <tr>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Patient</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">Hassan</td>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Clinic Address</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">Nazimabad</td>
+            </tr>
+            <tr>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Tel #</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">03482102017</td>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Age</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">23</td>
+            </tr>
+            <tr>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Email:</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">shakeebanwar@gmail.com</td>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;">Pay To</td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;">1000</td>
+            </tr>
+
+              <tr>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;"></td>
+            </tr>
+            <tr>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;"></td>
+            </tr>
+            <hr style="position: relative;top: 139px;border: 2px solid #333;">
+            <tr>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;"></td>
+            </tr>
+            <tr>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text-label" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text" style="width: 25%; padding: 5px;"></td>
+            </tr>
+        </table>
+        <table class="row" cellpadding="12" cellspacing="0" width="100%">
+            <tr>
+                <td valign="top" class="text-label border-wrap" style="width: 35%; padding: 5px;">Item</td>
+                <td valign="top" class="text-label border-wrap" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text-label border-wrap" style="width: 15%; padding: 5px;"></td>
+                <td valign="top" class="text-label border-wrap" style="width: 12%; padding: 5px;"></td>
+                <td valign="top" class="text-label border-wrap" style="width: 12%; padding: 5px;"></td>
+            </tr>
+            <tr>
+                <td valign="top" class="text-label bt bl bb" style="width: 35%; padding: 5px;">Item</td>
+                <td valign="top" class="text-label bt bb" style="width: 25%; padding: 5px;">Details</td>
+                <td valign="top" class="text-label bt bb" style="width: 15%; padding: 5px;">Subtotal</td>
+                <td valign="top" class="text-label bt bb" style="width: 12%; padding: 5px;">Tax</td>
+                <td valign="top" class="text-label bt br bb" style="width: 12%; padding: 5px;">Total</td>
+            </tr>
+            <tr>
+                <td valign="top" class="text-label bt bl bb" style="width: 35%; padding: 5px;">Here you write you items.</td>
+                <td valign="top" class="text-label bt bb" style="width: 25%; padding: 5px;"></td>
+                <td valign="top" class="text-label bt bb" style="width: 15%; padding: 5px;">1000</td>
+                <td valign="top" class="text-label bt bb" style="width: 12%; padding: 5px;">$0.00</td>
+                <td valign="top" class="text-label bt br bb" style="width: 12%; padding: 5px;">2000</td>
+            </tr>
+        
+        </table>
+    </div>
+</page>
+</div>
+
+
+
+Backend code:
+
+
+
+class frontpdf(APIView):
+    def get(self,request):
+        return render(request,'front.html')
+
+
+    def post(self,request):
+        myfile = request.FILES['file']
+        myfile.name = "shakeeb.pdf"
+        data = Hospital_FileBridge(files=myfile)
+        data.save()
+        
+
+        print("done",myfile)
+        return HttpResponse("post")
